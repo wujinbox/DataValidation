@@ -8,7 +8,7 @@ import subprocess
 import sys
 
 from catalog import ROOT, read, write
-from cluster import GPU_QUERY, parse_gpu
+from cluster import BASE, GPU_QUERY, parse_gpu
 
 
 def worker(run):
@@ -84,7 +84,7 @@ def worker(run):
             f"--nproc_per_node={count}",
             str(ROOT.parent / "train_cached_sft.py"),
             "--model",
-            str(ROOT.parent / "outputs/l2-sport-fullbody/base"),
+            str(BASE),
             "--index",
             str(run / "train.jsonl"),
             "--limit",

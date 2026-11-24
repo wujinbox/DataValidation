@@ -228,7 +228,7 @@ def _plan(recipe, batch, invalid_ids=None):
         tail = [x for x in targets if after[x] < r["min_category_size"]]
         if tail:
             raise ValueError("过滤后以下 L2 不足最小条数: " + ", ".join(tail))
-    catalog = store.read(DATA / "catalog.json")
+    catalog = store.read(DATA / "catalog.json", [])
     plans = []
     for subset in [targets] if r["mode"] == "mixed" else [[x] for x in targets]:
         candidate = [row for row in rows if set(row["l2_ids"]) & set(subset)]

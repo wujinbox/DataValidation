@@ -40,7 +40,7 @@ def sha256_file(path):
 
 
 def index_version():
-    path = Path(os.environ.get("WAN_INDEX", str(DATA / "index.jsonl.gz"))).resolve()
+    path = Path(os.environ.get("WAN_INDEX", DATA / "index.jsonl.gz")).expanduser().resolve()
     st = path.stat()
     return (str(path), st.st_mtime_ns, st.st_size)
 

@@ -3,7 +3,7 @@ from pathlib import Path
 import subprocess
 import sys
 from catalog import read, write
-from cluster import PYTHON, REMOTE, ssh
+from cluster import PUBLISH, PYTHON, REMOTE, remote_run, ssh
 from publish import publish
 
 
@@ -20,14 +20,14 @@ def run_job(run):
             subprocess.run(
                 ssh(
                     cfg["host"],
-                    [PYTHON, REMOTE + "/worker.py", (
-                        "/mnt/nvme0n1/wujinbo/wan-studio-runs/" + run.name
-                        if cfg.get("local_output") else REMOTE + "/runs/" + run.name
-                    )],
+                    [PYTHON, REMOTE + "/worker.py", remote_run(run.name, cfg)],
                 ),
                 check=True,
             )
         if (run / "cancel.request").exists():
+            return
+        if not PUBLISH:
+            write(run / "state.json", dict(stage="完成"))
             return
         write(run / "state.json", dict(stage="飞书归档"))
         url = publish(run)

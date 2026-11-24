@@ -1,0 +1,6 @@
+[submodule "FastVideo"]
+	path = FastVideo
+	url = https://github.com/hao-ai-lab/FastVideo.git
+[submodule "Wan2.2"]
+	path = Wan2.2
+	url = https://github.com/Wan-Video/Wan2.2.git

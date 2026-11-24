@@ -1,0 +1,9 @@
+-r requirements.txt
+torch>=2.5,<3
+diffusers==0.37.0
+safetensors==0.6.2
+transformers==4.51.3
+einops==0.8.1
+ftfy==6.3.1
+regex==2025.11.3
+sentencepiece==0.2.0

@@ -1,10 +1,10 @@
 # Wan2.1-T2V-1.3B 单卡缓存 SFT
 
-在能同时读取 041 训练索引、008 缓存文件路径和原版模型目录的 GPU 节点运行。0013 的共享工作目录为 `/home/wujinbo/008/mnt/nvme0n1/wujinbo/code/Wan1.3B`。
+在能读取训练索引、缓存文件和原版模型目录的 GPU 节点运行。先按[仓库首页](README.md)准备 CUDA Python 环境。
 
 ```bash
-cd /home/wujinbo/008/mnt/nvme0n1/wujinbo/code/Wan1.3B
-GPU=0 PYTORCH_ALLOC_CONF=expandable_segments:True bash bench_cached_sft.sh
+GPU=0 PYTORCH_ALLOC_CONF=expandable_segments:True bash bench_cached_sft.sh \
+  --index /path/to/index.jsonl --model /path/to/Wan2.1-T2V-1.3B
 ```
 
 每个 batch 用单独的进程从同一权重开始。每档做一次预热更新、三次计时更新，直到实际 CUDA OOM。计时包含取缓存、传输、前向、反向、梯度裁剪和 AdamW 更新。默认测 97 和 77 帧横屏，使用每桶前 128 条记录打乱取样。设 `FRAMES=97` 可只测一个长度，传 `--portrait` 可测竖屏。每档逐步耗时、loss、梯度范数与显存保存在新建的 bench 目录。
@@ -15,7 +15,8 @@ GPU=0 PYTORCH_ALLOC_CONF=expandable_segments:True bash bench_cached_sft.sh
 
 ```bash
 CUDA_VISIBLE_DEVICES=0 PYTORCH_ALLOC_CONF=expandable_segments:True \
-  /home/zkln/miniconda3/envs/fastvideo/bin/python train_cached_sft.py \
+  python train_cached_sft.py \
+  --index /path/to/index.jsonl --model /path/to/Wan2.1-T2V-1.3B \
   --frames 0 --limit 0 --batch 4 --steps 100 --warmup 0 \
   --save outputs/sft-100/transformer
 ```

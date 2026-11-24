@@ -1,7 +1,9 @@
 """Paired T2V sampling and matched held-out flow loss, on one selected GPU."""
 
+import argparse
 import gc
 import importlib
+import os
 import shutil
 import subprocess
 import sys
@@ -11,21 +13,37 @@ from pathlib import Path
 import torch
 from diffusers import UniPCMultistepScheduler, WanTransformer3DModel
 from catalog import ROOT, read, write
+from cluster import BASE, ENC, NEGATIVE
+from datapipe.store import atomic_stream
 
 sys.path.insert(0, str(ROOT.parent))
 from train_cached_sft import load_model
 
-BASE = ROOT.parent / "outputs/l2-sport-fullbody/base"
-ENC = Path("/mnt/nvme0n1/models/Wan2.2-S2V-14B")
 DTYPE = torch.bfloat16
 FFMPEG = shutil.which("ffmpeg") or str(Path(sys.executable).parent / "ffmpeg")
 
 
 def wan_module(name):
+    checkout = ROOT.parent / "Wan2.2" / "wan/modules"
+    legacy = ROOT.parent.parent / "D_human_train/wan/modules"
+    default = checkout if checkout.is_dir() else legacy
+    modules = Path(os.environ.get("WAN_WAN_MODULES", default)).expanduser()
+    if not (modules / f"{name}.py").is_file():
+        raise FileNotFoundError(f"Missing Wan2.2 module {name}. Run git submodule update --init Wan2.2 or set WAN_WAN_MODULES.")
     pkg = types.ModuleType("studio_wan")
-    pkg.__path__ = [str(ROOT.parent.parent / "D_human_train/wan/modules")]
+    pkg.__path__ = [str(modules)]
     sys.modules.setdefault(pkg.__name__, pkg)
     return importlib.import_module("studio_wan." + name)
+
+
+def text_encoder():
+    return wan_module("t5").T5EncoderModel(
+        512,
+        dtype=DTYPE,
+        device="cuda",
+        checkpoint_path=ENC / "models_t5_umt5-xxl-enc-bf16.pth",
+        tokenizer_path=str(ENC / "google/umt5-xxl"),
+    )
 
 
 @torch.inference_mode()
@@ -33,13 +51,7 @@ def encode(run):
     cases = read(run / "cases.json")
     if not any(c["kind"] == "产品描述" for c in cases):
         return
-    encoder = wan_module("t5").T5EncoderModel(
-        512,
-        dtype=DTYPE,
-        device="cuda",
-        checkpoint_path=ENC / "models_t5_umt5-xxl-enc-bf16.pth",
-        tokenizer_path=str(ENC / "google/umt5-xxl"),
-    )
+    encoder = text_encoder()
     for i, c in enumerate(cases):
         if c["kind"] == "产品描述":
             torch.save(encoder([c["prompt"]], "cuda")[0].cpu(), run / f"text-{i}.pt")
@@ -58,7 +70,7 @@ def evaluate(run, rank, world):
     )
     neg = pad(
         torch.load(
-            ROOT.parent / "outputs/l2-sport-fullbody/ab/negative.pt", weights_only=True
+            NEGATIVE, weights_only=True
         )
     )
     versions = cfg.get("eval_versions", ["base", "sft"])
@@ -184,8 +196,18 @@ def evaluate(run, rank, world):
 
 
 if __name__ == "__main__":
-    run = Path(sys.argv[1])
-    if sys.argv[2] == "encode":
-        encode(run)
+    if sys.argv[1:2] == ["negative"]:
+        parser = argparse.ArgumentParser(description="Generate a negative prompt embedding")
+        parser.add_argument("prompt")
+        parser.add_argument("--output", type=Path, default=NEGATIVE)
+        args = parser.parse_args(sys.argv[2:])
+        with torch.inference_mode():
+            embedding = text_encoder()([args.prompt], "cuda")[0].cpu()
+        with atomic_stream(args.output, binary=True) as output:
+            torch.save(embedding, output)
     else:
-        evaluate(run, int(sys.argv[2]), int(sys.argv[3]))
+        run = Path(sys.argv[1])
+        if sys.argv[2] == "encode":
+            encode(run)
+        else:
+            evaluate(run, int(sys.argv[2]), int(sys.argv[3]))

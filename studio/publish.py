@@ -2,6 +2,7 @@
 
 from html import escape
 import json
+import os
 from pathlib import Path
 from statistics import mean
 import shutil
@@ -9,7 +10,7 @@ import time
 import subprocess
 from xml.etree import ElementTree as ET
 
-from catalog import PARENT, SHEET, read, write
+from catalog import read, write
 
 
 def lark(run, *args):
@@ -71,6 +72,9 @@ def data_tables(run, cases):
 
 
 def publish(run):
+    parent = os.environ["WAN_FEISHU_PARENT"]
+    space = os.environ["WAN_FEISHU_SPACE"]
+    sheet = os.environ.get("WAN_FEISHU_REFERENCE")
     cfg = read(run / "config.json")
     cases = read(run / "cases.json")
     split = read(run / "split.json")
@@ -85,9 +89,9 @@ def publish(run):
                 "wiki",
                 "+node-list",
                 "--space-id",
-                "7682612721803644105",
+                space,
                 "--parent-node-token",
-                PARENT,
+                parent,
                 "--page-all",
                 "--page-limit",
                 "0",
@@ -98,7 +102,7 @@ def publish(run):
         if node is None:
             if not (run / "created.json").exists():
                 created = lark(
-                    run, "docs", "+create", "--parent-token", PARENT, "--title", title
+                    run, "docs", "+create", "--parent-token", parent, "--title", title
                 )
                 write(run / "created.json", created)
             for delay in (0, 1, 2, 4, 8):
@@ -160,8 +164,9 @@ def publish(run):
     summary += (
         f"<p>学习率 {cfg['lr']}，每卡 batch {cfg['batch']}，GPU {escape(str(cfg['gpus']))}，"
         f"训练预算 {cfg['steps'] or '1 epoch'}，UniPC {cfg['sampling_steps']} 步，CFG 5，shift 3，24 fps。</p>"
-        f'<p><a href="{SHEET}">动作定义与产品描述 · 类目树 4.0</a></p>'
     )
+    if sheet:
+        summary += f'<p><a href="{escape(sheet, quote=True)}">动作定义与产品描述</a></p>'
     summary += data_tables(run, cases)
     current = content()
     if "训练与评测结果" not in current:

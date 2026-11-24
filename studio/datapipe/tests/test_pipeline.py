@@ -30,6 +30,7 @@ class Fixture(unittest.TestCase):
         self.runs.mkdir()
         self.stack = ExitStack()
         self.addCleanup(self.stack.close)
+        self.stack.enter_context(patch.dict(recipe.HOSTS, {"0008": "localhost"}))
         for obj, key, value in [
             (store, "DATASETS", self.ds),
             (build, "RUNS", self.runs),

@@ -1,21 +1,20 @@
 # Wan 动作实验台
 
-服务运行在集群 008 的回环端口 28765。在浏览器所在机器建立转发后，打开 http://127.0.0.1:28765 。
+默认服务绑定回环端口 28765。安装和数据接入步骤见[仓库首页](../README.md)。若程序在远端运行，在浏览器所在机器建立转发后打开 http://127.0.0.1:28765 。
 
 ```bash
-ssh -N -L 28765:127.0.0.1:28765 wujinbo@token-zkln-h100-0008.host.platform.shaipower.com
+ssh -N -L 28765:127.0.0.1:28765 user@studio-host
 ```
 
 「训练」页面统一提供训练设置、提交和任务进度。选择已通过质检的数据批次，再选择类别、数据配比与训练参数，预览后提交；任务及历史记录显示在同一页面下方。可刷新计算资源查看 GPU 状态并选卡。学习率默认 3e-6，步数 0 表示按原始尺寸分桶训练一轮完整分布式 batch。关闭浏览器不影响已经提交的任务。
 
-每次运行在同目录的 runs 下生成独立目录。config.json 记录参数，train.jsonl 是排除留出来源后的清单，cases.json 记录全部测试 prompt、来源或产品表行、镜头和种子，job.log 记录训练步数、耗时、损失与评测进度。训练结束后保存 transformer 权重，用同一噪声生成每个用例的基座和 SFT 视频，并在飞书「数据验证」下生成子文档。归档失败可从实验记录重试，已完成的评测会复用。
+每次运行在同目录的 runs 下生成独立目录。config.json 记录参数，train.jsonl 是排除留出来源后的清单，cases.json 记录全部测试 prompt、来源或产品表行、镜头和种子，job.log 记录训练步数、耗时、损失与评测进度。训练结束后保存 transformer 权重，用同一噪声生成每个用例的基座和 SFT 视频。如果配置了飞书归档，工作台会在指定父节点下生成子文档。归档失败可从实验记录重试，已完成的评测会复用。
 
-008 上可通过以下命令检查用户服务。主机重启后如临时服务已释放，可用最后一条命令重新部署。
+如果通过 systemd 部署，可用服务的实际名称查询状态和日志。
 
 ```bash
 systemctl --user status wan-l2-console
 journalctl --user -u wan-l2-console -n 30
-systemd-run --user --unit=wan-l2-console --property=Restart=on-failure /usr/bin/python3 -u /mnt/nvme0n1/wujinbo/code/Wan1.3B/studio/server.py
 ```
 
 ## 数据批次 → 质检 → 训练配方
@@ -58,7 +57,7 @@ systemd-run --user --unit=wan-l2-console --property=Restart=on-failure /usr/bin/
 从 studio 目录运行：
 
 ```bash
-PY=/home/zkln/miniconda3/envs/fastvideo/bin/python
+PY=python
 $PY -m datapipe.cli profile /absolute/path/batch.jsonl
 $PY -m datapipe.cli sample '<batch_id>' --n 20 --seed 42
 $PY -m datapipe.cli sample '<batch_id>' --extra-l2 l1-05-l2-01 --k 3
@@ -71,5 +70,3 @@ python3 -m unittest discover -s datapipe/tests -v
 `plan` 不写 run；`build` 校验后落盘但不启动任务。二者均要求真实批次通过质检准入。已经生成质检样本的批次不能重新统计覆盖，避免破坏审核关联。源文件或索引版本改变时构建会拒绝使用过期统计。
 
 单元测试只使用 `/tmp` 合成样本和训练／发布替身。可选浏览器验收脚本为 `datapipe/tests/browser_smoke.py`，需要 Playwright 和 Chromium；它使用临时服务，验证三个标签页和统一训练入口、视频拖动、审核持久化、准入、无密钥回退、配方预览和提交流程，不会启动 GPU 或向飞书发布。
-
-上线前备份为 `studio.bak-20261116/`。需要回退时先停止工作台服务，再恢复备份中的代码；保留新生成的数据批次和训练产物供核查。

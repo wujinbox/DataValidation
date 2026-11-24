@@ -3,13 +3,12 @@
 from collections import Counter
 import gzip
 import json
+import os
 from pathlib import Path
 import re
 
 ROOT = Path(__file__).resolve().parent
-DATA = ROOT / "data"
-PARENT = "X9m6wn755ihGySk6UVsc0yN4n2d"
-SHEET = "https://ecnoie7eb92s.feishu.cn/wiki/VkyVwa3aliQX2RknbtwcvaXUn8n?sheet=0r7t05"
+DATA = Path(os.environ.get("WAN_DATA_DIR", ROOT / "data")).expanduser().resolve()
 
 
 def read(path):
@@ -35,9 +34,12 @@ def write(path, value):
 
 
 def records():
-    with gzip.open(DATA / "index.jsonl.gz", "rt") as stream:
+    path = Path(os.environ.get("WAN_INDEX", DATA / "index.jsonl.gz")).expanduser()
+    opener = gzip.open if path.suffix == ".gz" else open
+    with opener(path, "rt", encoding="utf-8") as stream:
         for line in stream:
-            yield json.loads(line)
+            if line.strip():
+                yield json.loads(line)
 
 
 def norm(s):
@@ -49,10 +51,13 @@ def build():
     parents = {
         norm(n): v["l2_id"] for n, v in read(DATA / "parents.json")["mapping"].items()
     }
-    aliases = read(
-        ROOT.parent.parent
-        / "D_human_train/extensions/source_l2_sampling/configs/legacy_action_aliases.json"
-    )["l3_to_l2"]
+    legacy_aliases = ROOT.parent.parent / (
+        "D_human_train/extensions/source_l2_sampling/configs/legacy_action_aliases.json"
+    )
+    aliases_path = os.environ.get("WAN_ACTION_ALIASES")
+    aliases = {}
+    if aliases_path or legacy_aliases.is_file():
+        aliases = read(Path(aliases_path).expanduser() if aliases_path else legacy_aliases)["l3_to_l2"]
     by_name = {v: k for k, v in taxonomy.items()}
     for action, parent_name in aliases.items():
         if parent_name in by_name:

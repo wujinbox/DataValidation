@@ -2,6 +2,7 @@
 
 # ruff: noqa: E402
 from pathlib import Path
+import shutil
 import subprocess
 import sys
 import threading
@@ -22,7 +23,9 @@ def main():
     fixture.setUp()
     http = None
     try:
-        ffmpeg = "/home/zkln/miniconda3/envs/fastvideo/bin/ffmpeg"
+        ffmpeg = shutil.which("ffmpeg")
+        if not ffmpeg:
+            raise RuntimeError("Install FFmpeg with libx264 before running this test")
         subprocess.run(
             [
                 ffmpeg,

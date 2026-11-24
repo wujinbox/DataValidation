@@ -1,0 +1,16 @@
+__pycache__/
+*.py[cod]
+.venv/
+.env
+.ruff_cache/
+.pytest_cache/
+*.bak-*
+/bench-*/
+/models/
+/outputs/
+/sft_480p_benchmark.csv
+/studio/data/
+/studio/datasets/
+/studio/runs/
+/studio/queue.json
+/studio/queue-lock/

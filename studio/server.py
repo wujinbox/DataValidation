@@ -15,7 +15,9 @@ from urllib.parse import urlsplit
 from zoneinfo import ZoneInfo
 
 from catalog import DATA, ROOT, read, write
-from cluster import HOSTS, PYTHON, REMOTE, inventory, probe, ssh
+from cluster import (
+    DATA_PYTHON, HOSTS, PYTHON, PUBLISH, REMOTE, inventory, probe, remote_run, ssh,
+)
 from control import stop_tree
 from progress import progress
 from datapipe import store, qc, queue
@@ -23,7 +25,7 @@ from datapipe.recipe import validate as validate_recipe
 
 PORT = int(os.environ.get("WAN_STUDIO_PORT", "28765"))
 RUNS = ROOT / "runs"
-CATEGORIES = {c["id"]: c for c in read(DATA / "catalog.json")}
+CATEGORIES = {c["id"]: c for c in store.read(DATA / "catalog.json", [])}
 LOCK = threading.Lock()
 RESOURCE_LOCK = threading.Lock()
 # A page token survives host/origin rewriting without trusting forwarded headers.
@@ -68,7 +70,7 @@ def status(run):
         split=read(run / "split.json") if (run / "split.json").exists() else None,
         videos=metrics["pairs"],
         tail=logtail(run / "job.log"),
-        can_publish=(run / "evaluated.json").exists() and state["stage"] == "失败",
+        can_publish=PUBLISH and (run / "evaluated.json").exists() and state["stage"] == "失败",
     )
 
 
@@ -161,7 +163,7 @@ def submit(body):
 def heavy(command, batch, body, timeout=300):
     try:
         result = subprocess.run(
-            [PYTHON, "-m", "datapipe.cli", command, batch.name],
+            [DATA_PYTHON, "-m", "datapipe.cli", command, batch.name],
             cwd=ROOT,
             input=json.dumps(body, ensure_ascii=False),
             capture_output=True,
@@ -226,10 +228,7 @@ def stop(run):
         if not (run / "evaluated.json").exists():
             cmd = ssh(
                 current["config"]["host"],
-                [PYTHON, REMOTE + "/control.py", (
-                    "/mnt/nvme0n1/wujinbo/wan-studio-runs/" + run.name
-                    if current["config"].get("local_output") else REMOTE + "/runs/" + run.name
-                )],
+                [PYTHON, REMOTE + "/control.py", remote_run(run.name, current["config"])],
             )
             remote = subprocess.run(cmd, capture_output=True, text=True, timeout=45)
             if remote.returncode:
@@ -411,7 +410,7 @@ class Handler(BaseHTTPRequestHandler):
                         with (batch / "ingest.log").open("a") as log:
                             subprocess.Popen(
                                 [
-                                    PYTHON,
+                                    DATA_PYTHON,
                                     "-m",
                                     "datapipe.cli",
                                     "ingest",

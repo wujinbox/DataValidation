@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# Run on a node with the 041 index and 008 tensor mounts.
+# Run on a GPU node that can read the index and its cached tensors.
 set -euo pipefail
 cd "$(dirname "$0")"
-python_bin=${TRAIN_PYTHON:-/home/zkln/miniconda3/envs/fastvideo/bin/python}
+python_bin=${TRAIN_PYTHON:-python3}
 gpu=${GPU:-0}
 export CUDA_VISIBLE_DEVICES="$gpu" OMP_NUM_THREADS=2
 out=${OUT:-$(mktemp -d "$PWD/bench-XXXXXXXX")}

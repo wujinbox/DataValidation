@@ -1,6 +1,7 @@
 """Full SFT on D_human_train native 480p shape buckets."""
 
 import argparse
+import gzip
 import json
 import math
 import os
@@ -14,8 +15,10 @@ from diffusers import WanTransformer3DModel
 from diffusers.loaders.single_file_utils import convert_wan_transformer_to_diffusers
 from safetensors.torch import load_file
 
-INDEX = "/home/wujinbo/041/mnt/nvme0n1/wujinbo/s2v_sampling_480p_20261104/prepared_v4_curated/index.jsonl"
-MODEL = "/mnt/nvme0n1/liuyx/sf_dmd_assets/wan_models/Wan2.1-T2V-1.3B"
+ROOT = Path(__file__).resolve().parent
+DATA = Path(os.environ.get("WAN_DATA_DIR", ROOT / "studio/data")).expanduser()
+INDEX = os.environ.get("WAN_INDEX", str(DATA / "index.jsonl.gz"))
+MODEL = os.environ.get("WAN_BASE_MODEL", str(ROOT / "outputs/l2-sport-fullbody/base"))
 
 
 class CachedVideos(torch.utils.data.Dataset):
@@ -25,8 +28,11 @@ class CachedVideos(torch.utils.data.Dataset):
         h, w = (104, 60) if portrait else (60, 104)
         self.shape = (16, (frames + 3) // 4, h, w) if frames else None
         self.root = Path(index).parent
-        with open(index) as manifest:
+        opener = gzip.open if str(index).endswith(".gz") else open
+        with opener(index, "rt", encoding="utf-8") as manifest:
             for line in manifest:
+                if not line.strip():
+                    continue
                 row = json.loads(line)
                 shape = tuple(row["video_shape"])
                 c, t, height, width = shape

@@ -8,6 +8,7 @@ import sys
 import time
 
 from catalog import ROOT, read
+from cluster import REMOTE_OUTPUT
 
 
 def stop_tree(script, run):
@@ -93,7 +94,7 @@ if __name__ == "__main__":
         os.execv(system_python, [system_python, *sys.argv])
     run = Path(sys.argv[1]).resolve()
     local_output = (
-        run.parent == Path("/mnt/nvme0n1/wujinbo/wan-studio-runs")
+        run.parent == Path(REMOTE_OUTPUT).resolve()
         and read(run / "config.json").get("local_output") is True
     )
     if (run.parent != ROOT / "runs" and not local_output) or not (run / "cancel.request").exists():
