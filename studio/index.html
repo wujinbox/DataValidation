@@ -1,0 +1,54 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="wan-studio-csrf" content="__WAN_STUDIO_CSRF__"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Wan · 动作实验台</title>
+<style>
+:root{--ink:#172a22;--muted:#51655a;--line:#cbd7cd;--green:#155b40;--paper:#f5f7f2;--white:#fff}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.5 "Inter","Noto Sans CJK SC",system-ui,sans-serif}header{background:#153c2e;color:white;display:flex;align-items:center;justify-content:space-between;padding:16px 5vw}header strong{font-size:21px;letter-spacing:.02em}header a{color:#dcf1de}main{max-width:1480px;margin:auto;padding:28px 4vw}h1,h2,h3,p{margin:0}h1{font-size:clamp(28px,4vw,42px);letter-spacing:-.04em}h2{font-size:21px}h3{font-size:16px}small,.muted{color:var(--muted)}label{display:block;color:var(--muted);font-size:13px}input,select,button{font:inherit}input,select{padding:8px;border:1px solid var(--line);border-radius:5px;background:white;color:var(--ink);width:100%}button{cursor:pointer;background:white;color:var(--green);border:1px solid var(--line);border-radius:6px;padding:7px 12px}button:disabled{opacity:.5;cursor:not-allowed}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #d79c24}a{color:var(--green)}.layout{display:grid;grid-template-columns:minmax(200px,260px) minmax(0,1fr);gap:24px}.panel{padding:20px;background:white;border:1px solid var(--line);border-radius:10px}.side{align-self:start;position:sticky;top:12px}.side input{margin:14px 0 8px}.list{max-height:66vh;overflow:auto}.list button{display:flex;justify-content:space-between;width:100%;text-align:left;border:0;border-radius:4px;color:var(--ink);padding:8px}.list button.active{background:#dbece0;color:var(--green);font-weight:700}.list small{font-variant-numeric:tabular-nums}.top{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:18px;gap:12px}.top p{color:var(--muted)}.cardgrid{display:grid;grid-template-columns:minmax(0,1fr) minmax(230px,.85fr);gap:14px}.wide{grid-column:1/-1}.row{display:flex;justify-content:space-between;align-items:center;gap:10px}.chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px}.chip{background:#edf3ec;border-radius:4px;padding:3px 7px;font-size:12px}.resources{margin:12px 0;display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.resources label{border:1px solid var(--line);border-radius:6px;text-align:center;padding:9px 2px;color:var(--green);cursor:pointer}.resources label:has(:checked){background:#dbece0;border-color:var(--green);font-weight:700}.resources label:has(:disabled){color:#9aa39c;cursor:default}.resources input{width:auto;accent-color:var(--green)}.primary{background:var(--green);color:white;border-color:var(--green);font-weight:650;padding:10px 20px}.fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0}.test{padding:10px 0;border-bottom:1px solid #e0e8df}.test:last-child{border:0}.test p{font-size:13px;color:var(--muted);margin-top:4px}.note{color:#9e3e20;min-height:1.5em;margin-top:6px}details summary{cursor:pointer;color:var(--green);font-weight:600}.jobs{margin-top:20px}pre{max-height:250px;overflow:auto;background:#f0f4ef;white-space:pre-wrap;font:12px/1.5 monospace;padding:10px}.job{padding:12px 0;border-top:1px solid var(--line)}.job:first-child{margin-top:10px}.num{font:600 26px/1.2 ui-monospace,monospace;color:var(--green)}.stats{display:flex;gap:28px;margin:14px 0}.stats small{display:block}.tests{max-height:340px;overflow:auto}#host{margin-top:12px}@media(max-width:920px){.cardgrid{grid-template-columns:1fr}.layout{grid-template-columns:200px 1fr}}@media(max-width:660px){main{padding:12px}.layout{grid-template-columns:1fr}.side{position:static}.list{max-height:150px}.panel{padding:14px}.top{align-items:start}.stats{gap:15px}}
+progress{display:block;width:100%;height:10px;accent-color:var(--green);margin:4px 0 8px}.tracking{margin:12px 0}.stop{border-color:#cfa9a1;color:#943e31}
+.tabs{display:flex;gap:8px;padding:14px 5vw 0;flex-wrap:wrap}.tabs .active{background:var(--green);color:white}.dp-page{max-width:1480px;margin:auto;padding:28px 4vw}.dp-page[hidden],main[hidden]{display:none}.dp-stack{display:grid;gap:16px}.dp-grid{display:grid;grid-template-columns:240px minmax(0,1fr);gap:18px}.dp-samples{max-height:75vh;overflow:auto}.dp-samples button{display:block;width:100%;text-align:left;margin:3px 0}.dp-samples .active{background:#dbece0;border-color:var(--green)}.dp-page textarea{width:100%;min-height:90px;padding:10px;font:inherit;border:1px solid var(--line);border-radius:6px}.dp-page input[type=checkbox]{width:auto;accent-color:var(--green)}.dp-page select[multiple]{min-height:115px}.dp-page table{border-collapse:collapse;width:100%;font-size:13px;margin:10px 0}.dp-page td,.dp-page th{border:1px solid var(--line);padding:6px;text-align:left}.dp-report{overflow:auto;max-height:75vh}.dp-report img{max-width:100%;height:auto}.dp-report h2{margin:20px 0 8px}.dp-report p{margin:8px 0}.dp-page video{width:100%;max-height:58vh;background:#111}.dp-tag.wrong{color:#a11;text-decoration:line-through;border-color:#a11}.dp-tag{margin:3px}.dp-choice{display:inline-flex;gap:6px;align-items:center;margin:5px 12px 5px 0}.dp-categories{max-height:270px;overflow:auto}.dp-categories label{display:grid;grid-template-columns:22px 1fr 85px;gap:8px;align-items:center;padding:5px}.dp-success{color:var(--green)}.dp-meta{display:flex;gap:16px;flex-wrap:wrap}.dp-toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.dp-toolbar select{width:auto;min-width:240px}.dp-page .fields{grid-template-columns:repeat(auto-fit,minmax(180px,1fr))}.dp-page .panel{min-width:0}.dp-caption{white-space:pre-wrap;margin:10px 0}.dp-page h3{margin:12px 0 6px}.dp-error{white-space:pre-wrap;color:#943e31}.dp-scroll{overflow:auto}@media(max-width:700px){.dp-grid{grid-template-columns:1fr}.dp-samples{max-height:160px}.dp-page{padding:12px}}
+.training-editor{margin:18px 0}.training-editor>summary{font-size:20px;margin:0 0 14px}.training-editor[open]>summary{margin-bottom:18px}#training-jobs{scroll-margin-top:20px}.dp-resource-picker{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.dp-resource-picker label{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);padding:7px 10px;border-radius:6px}.dp-resource-picker label:has(:checked){background:#dbece0;border-color:var(--green)}.dp-resource-picker label:has(:disabled){opacity:.5}#dp-category-search{margin:8px 0}.dp-categories label[hidden]{display:none}
+</style></head><body><header><strong>Wan / 动作实验台</strong><a href="https://ecnoie7eb92s.feishu.cn/wiki/X9m6wn755ihGySk6UVsc0yN4n2d" target="_blank" rel="noreferrer">飞书实验报告 ↗</a></header><nav class="tabs" aria-label="工作区"><button data-tab="datasets">数据批次</button><button data-tab="qc">数据质检</button><button data-tab="training" class="active">训练</button></nav>
+<main id="training-page" class="dp-page">
+<div class="top"><div><h1>训练</h1><p>选择数据批次，设置训练参数，提交后在本页跟踪进度。</p></div><a href="#training-jobs">查看任务记录 ↓</a></div>
+<details id="training-editor" class="training-editor" open><summary>新建训练任务</summary><div id="training-setup"></div></details>
+<section id="training-jobs" class="panel jobs"><div class="row"><h2>任务进度与记录</h2><small>每 5 秒刷新</small></div><div id="note" class="note" role="status"></div><div id="jobs">加载中…</div></section>
+</main>
+<script>
+const $=id=>document.getElementById(id),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+async function api(path,data){const r=await fetch('/api/'+path,data?{method:'POST',headers:{'Content-Type':'application/json','X-Wan-Studio':'1','X-Wan-Studio-Token':document.querySelector('meta[name="wan-studio-csrf"]')?.content||''},body:JSON.stringify(data)}:{});const j=await r.json();if(!r.ok)throw Error(j.error||r.status);return j}
+const stopping = new Set();
+function progressView(j) {
+  const p = j.progress;
+  if (!p) return '';
+  const eta = p.seconds && j.stage === 'SFT 训练' && p.total > p.step
+    ? ' · 训练预计剩余 '+Math.ceil((p.total-p.step)*p.seconds/60)+' 分钟' : '';
+  const metrics = p.seconds ? ' · '+p.seconds.toFixed(1)+' 秒/步 · loss '+p.loss.toFixed(5) : '';
+  const training = p.total ? p.step+' / '+p.total+' 步' : '等待读取总步数';
+  return '<div class="tracking"><b>训练</b> '+training+metrics+eta+
+    (p.total?'<progress aria-label="训练进度" value="'+p.step+'" max="'+p.total+'"></progress>':'')+
+    '<div><b>对照评测</b> '+p.pairs+' / '+p.cases+' 组视频</div>'+
+    '<progress aria-label="评测进度" value="'+p.pairs+'" max="'+p.cases+'"></progress></div>';
+}
+async function jobs(){
+  const a=await api('jobs');
+  const open=new Set([...$('jobs').querySelectorAll('details[open]')].map(e=>e.dataset.id));
+  $('jobs').innerHTML=a.length?a.map(j=>`<article class="job">
+    <div class="row"><b>${esc(j.config.name)}</b><span class="chip">${esc(j.stage)}</span></div>
+    <small>${esc(j.id)} · H100-${esc(j.config.host)} · GPU ${esc(j.config.gpus.join(','))}</small>
+    ${j.config.dataset?'<div class="muted">'+esc(j.config.mode)+' · 批次 '+esc(j.config.dataset)+'</div><div>'+['mix.json','test_prompts.jsonl','cases.json','split.json','recipe.json'].map(n=>'<a target="_blank" rel="noreferrer" href="/api/jobs/'+encodeURIComponent(j.id)+'/file/'+n+'">'+esc(n)+'</a>').join(' · ')+'</div>':''}
+    ${progressView(j)}
+    ${j.can_stop?'<button class="stop" data-stop="'+esc(j.id)+'" '+(stopping.has(j.id)?'disabled':'')+'>'+(stopping.has(j.id)?'正在停止…':'停止实验')+'</button>':''}
+    ${j.url?'<a href="'+esc(j.url)+'" target="_blank" rel="noreferrer">打开报告 ↗</a>':''}
+    ${j.can_publish?'<button data-retry="'+esc(j.id)+'">重试归档</button>':''}
+    <details data-id="${esc(j.id)}" ${open.has(j.id)?'open':''}><summary>运行日志</summary><pre>${esc((j.error||'')+'\n'+j.tail)}</pre></details></article>`).join(''):'<p class="muted">尚未启动实验。</p>';
+}
+$('jobs').onclick=async e=>{
+  const id=e.target.dataset.stop||e.target.dataset.retry;
+  if(!id)return;
+  const stop=!!e.target.dataset.stop;
+  if(stop && (stopping.has(id)||!window.confirm('停止实验 '+id+'？训练中途停止会丢失尚未保存的权重，后续评测和归档也会结束。')))return;
+  if(stop){stopping.add(id);e.target.disabled=true;e.target.textContent='正在停止…'}
+  try{await api('jobs/'+id+(stop?'/stop':'/publish'),{})}
+  catch(err){$('note').textContent=err.message}
+  finally{stopping.delete(id);await jobs()}
+};
+jobs().catch(e=>$('note').textContent=e.message);
+setInterval(()=>jobs().catch(e=>$('note').textContent=e.message),5000);
+</script><script src="/datapipe.js"></script></body></html>
